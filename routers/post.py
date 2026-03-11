@@ -1,15 +1,10 @@
 from fastapi import APIRouter
 from models.post import PostCreate
-from fastapi import Header
 from fastapi import Depends
 from jose import jwt,JWTError
+from auth import verify_token
 import pymysql.cursors
 import database
-
-def verify_token(authorization:str = Header()):
-    token = authorization.replace("Bearer ","")
-    payload = jwt.decode(token,'secret',algorithms=['HS256'])
-    return payload
 
 router = APIRouter()
 

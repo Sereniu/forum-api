@@ -1,13 +1,15 @@
 from fastapi import APIRouter
 from models.comment import CommentCreate
+from fastapi import Depends
 import pymysql.cursors
 import database
+from auth import verify_token
 
 router = APIRouter()
 
 # 用户发表评论
 @router.post("/posts/{post_id}/comments/")
-async def comment(post_id: int,commentcreate:CommentCreate):
+async def comment(post_id: int,commentcreate:CommentCreate,current_user:dict = Depends(verify_token)):
     connention = database.get_connection()
     with connention:
         with connention.cursor() as cursor:
@@ -29,9 +31,17 @@ async def get_comments(post_id:int):
 
 # 删除某个评论
 @router.delete("/comments/{comment_id}")
-async def delete_comment(comment_id:int):
+async def delete_comment(comment_id:int,current_user: dict = Depends(verify_token)):
     connection = database.get_connection()
     with connection:
+        with connection.cursor() as cursor:
+            sql = "SELECT user_id FROM comments WHERE id=%s"
+            cursor .execute(sql,(comment_id,))
+            result = cursor.fetchone()
+
+        if current_user['user_id']!=result['user_id']:
+            return "sorry!you do not have right to delete this comment!"
+
         with connection.cursor() as cursor:
             sql = "DELETE FROM comments WHERE id=%s"
             cursor.execute(sql,(comment_id,))
