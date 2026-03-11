@@ -1,13 +1,21 @@
 from fastapi import APIRouter
 from models.post import PostCreate
+from fastapi import Header
+from fastapi import Depends
+from jose import jwt,JWTError
 import pymysql.cursors
 import database
+
+def verify_token(authorization:str = Header()):
+    token = authorization.replace("Bearer ","")
+    payload = jwt.decode(token,'secret',algorithms=['HS256'])
+    return payload
 
 router = APIRouter()
 
 # 用户发帖子
 @router.post("/posts/")
-async def post(postcreate:PostCreate):
+async def post(postcreate:PostCreate,current_user: dict=Depends(verify_token)):
     connection = database.get_connection()
     with connection:
         with connection.cursor() as cursor:

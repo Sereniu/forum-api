@@ -3,6 +3,7 @@ import bcrypt
 import database
 import pymysql.cursors
 from models.user import UserLogin,UserRegister
+from jose import jwt
 
 router = APIRouter()
 
@@ -26,10 +27,11 @@ async def login(userlogin:UserLogin):
     connection = database.get_connection()
     with connection:
         with connection.cursor() as cursor:
-            sql = "SELECT password from users where users.username=%s"
+            sql = "SELECT password,id from users where users.username=%s"
             cursor.execute(sql,(userlogin.username,))
             result = cursor.fetchone()
-    if bcrypt.checkpw(userlogin.password.encode(),result[0].encode()):
-        return "login successfully"
+    if bcrypt.checkpw(userlogin.password.encode(),result['password'].encode()):
+        token = jwt.encode({'user_id':result['id']},'secret',algorithm='HS256')
+        return token
     else :
         return "failed to login"
