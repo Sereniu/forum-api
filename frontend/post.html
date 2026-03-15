@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>post</title>
+    <script>
+    window.onload = async function() {
+        const params = new URLSearchParams(window.location.search)
+        const id = params.get('id')
+        console.log(id)
+        
+        const response = await fetch(`http://127.0.0.1:8000/posts/${id}`)
+        const data = await response.json()
+        const post = data.data
+document.getElementById('post-title').innerText = post.title
+document.getElementById('post-content').innerText = post.content
+document.getElementById('post-views').innerText = '浏览量：' + post.views
+    }
+</script>
+</head>
+<body>
+    <body>
+    <h1 id="post-title"></h1>
+    <p id="post-content"></p>
+    <p id="post-views"></p>
+</body>
+</body>
+</html>

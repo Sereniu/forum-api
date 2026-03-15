@@ -26,7 +26,7 @@ async def get_posts():
     connection = database.get_connection()
     with connection:
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM posts"
+            sql = "SELECT * FROM posts order by views DESC"
             cursor.execute(sql,)
             result = cursor.fetchall()
     return response(200,"get posts successfully",result)
@@ -37,7 +37,10 @@ async def get_post(id:int):
     connection = database.get_connection()
     with connection:
         with connection.cursor() as cursor:
+            sql = "UPDATE posts SET views=views+1 WHERE id=%s"
+            cursor.execute(sql,(id,))
             sql = "SELECT * FROM posts WHERE id=%s"
-            cursor.execute(sql,(id))
+            cursor.execute(sql,(id,))
             result = cursor.fetchone()
+        connection.commit()
     return response(200,"get post successfully",result)

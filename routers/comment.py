@@ -25,7 +25,7 @@ async def get_comments(post_id:int):
     connection = database.get_connection()
     with connection:
         with connection.cursor() as cursor:
-            sql = "SELECT users.username, comments.content, comments.created_at FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = %s"
+            sql = "SELECT users.username, comments.content, comments.created_at FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = %s order by comments.created_at"
             cursor.execute(sql,(post_id,))
             result = cursor.fetchall()
     return response(200,"get comments successfully",result)
